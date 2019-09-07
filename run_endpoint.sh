@@ -3,15 +3,15 @@
 # Set up the routing needed for the simulation.
 /setup.sh
 
-ROLE=$1
-shift
-
 cd quicly
 
 if [ "$ROLE" == "client" ]; then
+    sleep 10
     echo "Starting quicly client ..."
-    ./cli -p /10000000.txt -e /qnslogs/quicly-cli.out server 4434
+    echo "CLIENT_PARAMS:" $CLIENT_PARAMS
+    ./cli $CLIENT_PARAMS -e /qnslogs/quicly-cli.out server 4434
 elif [ "$ROLE" == "server" ]; then
     echo "Starting quicly server ..."
-    ./cli -k server.key -c server.crt -e /qnslogs/quicly-srv.out 0.0.0.0 4434
+    echo "SERVER_PARAMS:" $SERVER_PARAMS
+    ./cli $SERVER_PARAMS -e /qnslogs/quicly-srv.out -k server.key -c server.crt 0.0.0.0 4434
 fi
