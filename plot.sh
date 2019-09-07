@@ -1,5 +1,6 @@
 #!/usr/local/bin/bash
 
+QUICLY="/Users/jiyengar/quicly"
 QT="/Users/jiyengar/quic-trace"
 
 if [ "$#" -ne 2 ]; then
@@ -7,6 +8,6 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-python quictrace-adapter.py $1 $2.json &&\
+python $QUICLY/quictrace-adapter.py $1 $2.json &&\
 $QT/bazel-bin/tools/transform_quic_trace --input_format=json < $2.json > $2.qtr &&\
 $QT/bazel-bin/tools/render/render_trace $2.qtr
