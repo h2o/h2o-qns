@@ -8,8 +8,8 @@ RUN apt-get update && \
 
 # quicly
 RUN git clone https://github.com/h2o/quicly.git
-RUN cd quicly &&  git submodule update --init --recursive && cmake . && make
-# git checkout kazuho/usdt &&
+RUN cd quicly && git checkout kazuho/usdt && git pull && git submodule update --init --recursive && cmake . && make
+RUN cd quicly && misc/probe2trace.pl < quicly-probes.d > trace.d
 COPY server.key quicly
 COPY server.crt quicly
 
