@@ -6,10 +6,11 @@ WORKDIR /
 RUN apt-get update && \
   apt-get install -y net-tools iputils-ping tcpdump ethtool iperf
 
+RUN cd /
+
 # quicly
 RUN git clone https://github.com/h2o/quicly.git
-RUN cd quicly &&  git submodule update --init --recursive && cmake . && make
-# git checkout kazuho/usdt &&
+RUN cd quicly &&  git pull && git checkout jri/to-file && git submodule update --init --recursive && cmake . && make
 COPY server.key quicly
 COPY server.crt quicly
 

@@ -6,8 +6,8 @@ cd quicly
 
 if [ ! -z "$TESTCASE" ]; then
     case "$TESTCASE" in
-        "transfer"|"retry") ;;
-        "resumption") exit 127 ;;
+        "handshake"|"transfer"|"retry"|"throughput") ;;
+        "resumption"|"http3") exit 127 ;;
         *) exit 127 ;;
     esac
 fi
@@ -21,9 +21,13 @@ if [ "$ROLE" == "client" ]; then
     echo "Starting quicly client ..."
     if [ ! -z "$REQUESTS" ]; then
         for REQ in $REQUESTS; do
+            FILES=${FILES}" -P /"`echo $REQ | cut -f4 -d'/'`
+        done
+        echo "/quicly/cli $FILES server 443"
+        /quicly/cli $FILES -e /logs/$TESTCASE.out server 443
+        for REQ in $REQUESTS; do
             FILE=`echo $REQ | cut -f4 -d'/'`
-            echo "/quicly/cli -p /$FILE -e /logs/$TESTCASE-$FILE.out server 443"
-            /quicly/cli -p /$FILE -e /logs/$TESTCASE-$FILE.out server 4434 > $FILE
+            mv $FILE.downloaded $FILE
         done
     fi
 
@@ -37,5 +41,5 @@ elif [ "$ROLE" == "server" ]; then
     echo "Starting quicly server ..."
     echo "SERVER_PARAMS:" $SERVER_PARAMS "TEST_PARAMS:" $TEST_PARAMS
     echo "/quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt -e /logs/$TESTCASE.out 0.0.0.0 443"
-    /quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt  -e /logs/$TESTCASE.out 0.0.0.0 4434
+    /quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt  -e /logs/$TESTCASE.out 0.0.0.0 443
 fi
