@@ -12,25 +12,32 @@ if [ ! -z "$TESTCASE" ]; then
     esac
 fi
 
+### Client side ###
 if [ "$ROLE" == "client" ]; then
     sleep 10
     cd /downloads
     case "$TESTCASE" in
+        "resumption") TEST_PARAMS="-s previous_sessions.bin" ;;
         *) ;;
     esac
     echo "Starting quicly client ..."
     if [ ! -z "$REQUESTS" ]; then
+        # pull requests out of param
         for REQ in $REQUESTS; do
             FILES=${FILES}" -P /"`echo $REQ | cut -f4 -d'/'`
         done
+
         echo "/quicly/cli $FILES server 443"
-        /quicly/cli $FILES -e /logs/$TESTCASE.out server 443
+        /quicly/cli $FILES $TEST_PARAMS -a "hq-23" -e /logs/$TESTCASE.out server 443
+
+        # cleanup
         for REQ in $REQUESTS; do
             FILE=`echo $REQ | cut -f4 -d'/'`
             mv $FILE.downloaded $FILE
         done
     fi
 
+### Server side ###
 elif [ "$ROLE" == "server" ]; then
     echo "Starting server for test:" $TESTCASE
     cd /www && ls -l
