@@ -28,7 +28,7 @@ if [ "$ROLE" == "client" ]; then
         done
 
         echo "/quicly/cli $FILES server 443"
-        /quicly/cli $FILES $TEST_PARAMS -a "hq-23" -e /logs/$TESTCASE.out server 443
+        /quicly/cli $FILES $TEST_PARAMS -a "hq-23" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
 
         # cleanup
         for REQ in $REQUESTS; do
@@ -48,5 +48,5 @@ elif [ "$ROLE" == "server" ]; then
     echo "Starting quicly server ..."
     echo "SERVER_PARAMS:" $SERVER_PARAMS "TEST_PARAMS:" $TEST_PARAMS
     echo "/quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt -e /logs/$TESTCASE.out 0.0.0.0 443"
-    /quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt  -e /logs/$TESTCASE.out 0.0.0.0 443
+    /quicly/cli $SERVER_PARAMS $TEST_PARAMS -k /quicly/server.key -c /quicly/server.crt -x x25519 -x secp256r1 -a "hq-23" -e /logs/$TESTCASE.out 0.0.0.0 443
 fi
