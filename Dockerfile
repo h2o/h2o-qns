@@ -10,7 +10,7 @@ RUN cd /
 
 # quicly
 RUN git clone https://github.com/h2o/quicly.git
-RUN cd quicly &&  git pull && git checkout jri/to-file && git submodule update --init --recursive && cmake . && make
+RUN cd quicly &&  git pull && git submodule update --init --recursive && cmake . && make
 COPY server.key quicly
 COPY server.crt quicly
 

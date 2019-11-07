@@ -6,7 +6,7 @@ cd quicly
 
 if [ ! -z "$TESTCASE" ]; then
     case "$TESTCASE" in
-        "handshake"|"transfer"|"retry"|"throughput") ;;
+        "handshake"|"transfer"|"retry"|"goodput") ;;
         "resumption"|"http3") exit 127 ;;
         *) exit 127 ;;
     esac
@@ -14,6 +14,7 @@ fi
 
 ### Client side ###
 if [ "$ROLE" == "client" ]; then
+    ### FIXME -- add waitforit.sh and remove sleep
     sleep 10
     cd /downloads
     case "$TESTCASE" in
