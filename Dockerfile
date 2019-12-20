@@ -16,7 +16,11 @@ COPY server.crt quicly
 
 # setup and endpoint
 COPY setup.sh .
-RUN sudo chmod +x setup.sh
+RUN chmod +x setup.sh
+
 COPY run_endpoint.sh .
-RUN sudo chmod +x run_endpoint.sh
+RUN chmod +x run_endpoint.sh
+
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod +x wait-for-it.sh
+
 ENTRYPOINT [ "./run_endpoint.sh" ]

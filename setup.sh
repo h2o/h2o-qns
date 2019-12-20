@@ -16,3 +16,6 @@ echo "193.167.100.100 server" >> /etc/hosts
 route add -net 193.167.0.0 netmask 255.255.0.0 gw $GATEWAY
 # delete unused route
 route del -net $UNNEEDED_ROUTE netmask 255.255.255.0
+
+# create the logs directory
+mkdir /logs
