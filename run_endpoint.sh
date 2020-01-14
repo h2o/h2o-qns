@@ -6,7 +6,7 @@ cd quicly
 
 if [ ! -z "$TESTCASE" ]; then
     case "$TESTCASE" in
-        "handshake"|"transfer"|"retry"|"goodput"|"resumption") ;;
+        "handshake"|"transfer"|"retry"|"goodput"|"resumption"|"seqtransfer") ;;
         "http3") exit 127 ;;
         *) exit 127 ;;
     esac
@@ -23,35 +23,41 @@ if [ "$ROLE" == "client" ]; then
     esac
     echo "Starting quicly client ..."
     if [ ! -z "$REQUESTS" ]; then
-        # pull requests out of param
         echo "Requests: " $REQUESTS
+        # Pull file names out of requests, generate file list for cli.
         for REQ in $REQUESTS; do
             FILE=`echo $REQ | cut -f4 -d'/'`
-            if [ "$TESTCASE" == "resumption" ]; then
-                FILELIST=${FILELIST}" /"${FILE}
-            else
-                FILES=${FILES}" -P /"${FILE}
-            fi
+            FILES=${FILES}" "${FILE}
+            CLI_LIST=${CLI_LIST}" -P /"${FILE}
         done
 
         if [ "$TESTCASE" == "resumption" ]; then
-            FILE=`echo $FILELIST | cut -f1 -d" "`
-            echo "/quicly/cli -P $FILE server 443"
-            /quicly/cli -P $FILE $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
-            for FILE in `echo $FILELIST | cut -f2- -d" "`; do
-                FILES=${FILES}" -P "${FILE}
-            done
-            echo "/quicly/cli $FILES server 443"
-            /quicly/cli $FILES $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
+            # Client needs to be run twice. First, with one request.
+            FILE=`echo $FILES | cut -f1 -d" "`
+            echo "/quicly/cli -P /$FILE server 443"
+            /quicly/cli -P "/"$FILE $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
+
+            # Second time, with rest of the requests.
+            CLI_LIST=`echo $CLI_LIST | cut -f3- -d" "`
+            echo "/quicly/cli $CLI_LIST server 443"
+            /quicly/cli $CLI_LIST $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
             rm -f previous_sessions.bin
+
+        elif [ "$TESTCASE" == "seqtransfer" ]; then
+            # Client needs to be run once per file.
+            for FILE in $FILES; do
+                echo "/quicly/cli /$FILE server 443"
+                /quicly/cli -P "/"$FILE $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
+            done
+
         else
-            echo "/quicly/cli $FILES server 443"
-            /quicly/cli $FILES $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
+            # Client is run once for all files.
+            echo "/quicly/cli $CLI_LIST server 443"
+            /quicly/cli $CLI_LIST $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
         fi
 
-        # cleanup
-        for REQ in $REQUESTS; do
-            FILE=`echo $REQ | cut -f4 -d'/'`
+        # Cleanup.
+        for FILE in $FILES; do
             mv $FILE.downloaded $FILE
         done
     fi
@@ -59,6 +65,7 @@ if [ "$ROLE" == "client" ]; then
 ### Server side ###
 elif [ "$ROLE" == "server" ]; then
     echo "Starting server for test:" $TESTCASE
+    echo "Serving files:"
     cd /www && ls -l
     case "$TESTCASE" in
         "retry") TEST_PARAMS="-R" ;;
