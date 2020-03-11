@@ -6,7 +6,7 @@ cd quicly
 
 if [ ! -z "$TESTCASE" ]; then
     case "$TESTCASE" in
-        "handshake"|"transfer"|"retry"|"goodput"|"resumption"|"seqtransfer") ;;
+        "handshake"|"transfer"|"retry"|"goodput"|"resumption"|"multiconnect") ;;
         "http3") exit 127 ;;
         *) exit 127 ;;
     esac
@@ -43,7 +43,7 @@ if [ "$ROLE" == "client" ]; then
             /quicly/cli $CLI_LIST $TEST_PARAMS -a "hq-24" -x x25519 -x secp256r1 -e /logs/$TESTCASE.out server 443
             rm -f previous_sessions.bin
 
-        elif [ "$TESTCASE" == "seqtransfer" ]; then
+        elif [ "$TESTCASE" == "multiconnect" ]; then
             # Client needs to be run once per file.
             for FILE in $FILES; do
                 echo "/quicly/cli /$FILE server 443"
